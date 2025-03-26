@@ -1,0 +1,10 @@
+name: crypto05
+services:
+  server:
+    build: .
+    ports:
+      - "5005:1339"
+    environment:
+      - FLAG=pascalCTF{Y0ur_l1k3_a_3ncycl0p3d14_0f_r4nd0m_w0rds!}
+    restart: unless-stopped
+    container_name: crypto05-wordy

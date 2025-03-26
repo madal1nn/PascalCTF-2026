@@ -1,0 +1,47 @@
+name: web05
+services:
+  app:
+    build: .
+    container_name: web05-app
+    restart: unless-stopped
+    environment:
+      - FLAG=pascalCTF{H0w_M4ny_Vuln3r4b1l1t13s_4r3_1n_Th1s_W3b!?}
+      - AUTH_TOKEN=0500c4136e88d9eb09ff5c4c2ba5d32e
+      - PORT=5005
+    ports:
+      - 127.0.0.1:8005:5005
+    depends_on:
+      - headless
+
+  headless:
+    image: cybersecnatlab/challenge-headless:latest-manager
+    restart: unless-stopped
+    environment:
+      AUTH_TOKEN: 0500c4136e88d9eb09ff5c4c2ba5d32e
+      RABBITMQ_HOST: headless-rabbitmq
+      RABBITMQ_QUEUE: headless-jobs
+    depends_on:
+      headless-rabbitmq:
+        condition: service_healthy
+
+  headless-rabbitmq:
+    image: rabbitmq:3.11
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  headless-worker:
+    image: cybersecnatlab/challenge-headless:latest-worker
+    restart: unless-stopped
+    environment:
+      RABBITMQ_HOST: headless-rabbitmq
+      RABBITMQ_QUEUE: headless-jobs
+      LEGACY_MODE: true
+    deploy:
+      replicas: 2
+    depends_on:
+      headless-rabbitmq:
+        condition: service_healthy

@@ -1,0 +1,12 @@
+name: misc04
+services:
+  chall:
+    build: .
+    ports:
+      - "6004:42069"
+    environment:
+      - FLAG=pascalCTF{H0w_4r3_Y0u_s0_g0Od_4t_BOMBARE?}
+      - MODULES=100
+      - TIMEOUT=30
+    restart: unless-stopped
+    container_name: misc04-chall

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive Quiz - Test your knowledge!">
+    <title>Pascal CTF Quiz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <main class="quiz-container">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen">
+            <div class="start-content">
+                <div class="start-icon">🙂</div>
+                <h1 class="start-title">pascal ctf quiz!!!</h1>
+                <p class="start-message">load sounds pls be careful ok?</p>
+                <button id="start-btn" class="start-button">Start Quiz</button>
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="screen hidden">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p>Loading quiz...</p>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen hidden">
+            <header class="quiz-header">
+                <div class="progress-info">
+                    <span class="question-counter">Question <span id="current-question">1</span> of <span
+                            id="total-questions">5</span></span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+            </header>
+
+            <section class="question-section">
+                <div id="question-image-container" class="question-image-container hidden">
+                    <img id="question-image" src="" alt="Question image">
+                </div>
+                <h1 id="question-text" class="question-text">Loading question...</h1>
+            </section>
+
+            <section id="answers-container" class="answers-container">
+                <!-- Answers will be dynamically inserted here -->
+            </section>
+        </div>
+
+        <!-- Video Screen -->
+        <div id="video-screen" class="screen hidden">
+            <header class="quiz-header">
+                <div class="progress-info">
+                    <span class="video-label">Video Break</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="video-progress-fill" class="progress-fill"></div>
+                </div>
+            </header>
+
+            <section class="video-section">
+                <h2 id="video-title" class="video-title"></h2>
+                <div class="video-wrapper">
+                    <iframe id="youtube-player" src="" title="YouTube video player" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                    </iframe>
+                    <video id="local-video-player" controls>
+                        <source src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <button id="skip-video-btn" class="skip-video-button">Skip Video →</button>
+            </section>
+        </div>
+
+        <!-- Congratulations Screen -->
+        <div id="congrats-screen" class="screen hidden">
+            <div class="congrats-content">
+                <div class="trophy-icon">🤑</div>
+                <h1 class="congrats-title">you finished the quiz yababadoo! here the flag</h1>
+                <p class="congrats-message">pascalCTF{lattuca_fa_rima_con_suca}</p>
+                <button id="restart-btn" class="restart-button">Play Again</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Audio elements for sound effects -->
+    <audio id="correct-sound" preload="auto"></audio>
+    <audio id="incorrect-sound" preload="auto"></audio>
+    <audio id="background-music" src="/assets/sounds/music.mp3" preload="auto" loop></audio>
+
+    <script src="quiz.js"></script>
+</body>
+
+</html>

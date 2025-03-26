@@ -1,0 +1,83 @@
+name: misc05
+services:
+  mail:
+    build: ./mail
+    hostname: "mail.${EMAIL_DOMAIN}"
+    container_name: misc05-mail
+    restart: unless-stopped
+    depends_on:
+      - db
+    volumes:
+      - "./data:/var/mail/vhosts"
+    environment:
+      - "MAILBOX_USERNAME=${EMAIL_USERNAME}"
+      - "MAILBOX_PASSWORD=${EMAIL_PASSWORD}"
+      - "MAILBOX_DOMAIN=${EMAIL_DOMAIN}"
+      - "POSTGRES_HOST=db"
+      - "POSTGRES_USER=${POSTGRES_USER}"
+      - "POSTGRES_PASS=${POSTGRES_PASSWORD}"
+      - "POSTGRES_DB=postfix"
+      - "MAILBOX_QUOTA=1G"
+  db:
+    image: postgres
+    container_name: misc05-db
+    restart: unless-stopped
+    environment:
+      - "POSTGRES_USER=${POSTGRES_USER}"
+      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
+    volumes:
+      - "postgres-misc05:/var/lib/postgresql"
+  roundcube:
+    image: roundcube/roundcubemail:latest
+    container_name: misc05-roundcube
+    restart: unless-stopped
+    depends_on:
+      - mail
+    ports:
+      - "127.0.0.1:3001:80"
+    environment:
+      - ROUNDCUBEMAIL_DEFAULT_HOST=ssl://mail
+      - ROUNDCUBEMAIL_DEFAULT_PORT=993
+      - ROUNDCUBEMAIL_SMTP_SERVER=ssl://mail
+      - ROUNDCUBEMAIL_SMTP_PORT=465
+    volumes:
+      - "./mail/roundcube:/var/roundcube/config"
+  challenge:
+    build:
+      context: ./app
+      args:
+        FLAG: ${FLAG}
+    container_name: misc05-challenge
+    restart: unless-stopped
+    read_only: true
+    depends_on:
+      - mail
+    environment:
+      - "EMAIL_DOMAIN=${EMAIL_DOMAIN}"
+      - "EMAIL_USERNAME=${EMAIL_USERNAME}"
+      - "EMAIL_PASSWORD=${EMAIL_PASSWORD}"
+    ports:
+      - "6005:5000"
+    volumes:
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 10485760  # 10MB
+  service:
+    build: ./service
+    container_name: misc05-service
+    restart: unless-stopped
+    environment:
+      - "EMAIL_DOMAIN=${EMAIL_DOMAIN}"
+      - "POSTGRES_HOST=db"
+      - "POSTGRES_DB=postfix"
+      - "POSTGRES_USER=${POSTGRES_USER}"
+      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
+      - "TURNSTILE_SITE_KEY=${TURNSTILE_SITE_KEY}"
+      - "TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}"
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:3002:8000"
+volumes:
+  postgres-misc05:

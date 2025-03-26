@@ -1,0 +1,1 @@
+I've just installed Arch Linux and I couldn't be any happier :)

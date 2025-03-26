@@ -1,0 +1,8 @@
+name: web01
+services:
+  jshit:
+    build: .
+    container_name: web01-jshit
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:80"

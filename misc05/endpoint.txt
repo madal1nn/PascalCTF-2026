@@ -1,0 +1,3 @@
+tcp,surgobot.ctf.pascalctf.it,6005
+http,surgo.ctf.pascalctf.it,80
+http,surgoservice.ctf.pascalctf.it,80

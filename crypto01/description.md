@@ -1,0 +1,1 @@
+I just discovered bitwise operators, so I guess 1 XOR 1 = 1?

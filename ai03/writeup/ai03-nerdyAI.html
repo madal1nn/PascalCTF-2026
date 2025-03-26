@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimal AI Chat</title>
+  <style>
+    :root {
+      --bg-color: #1e1e2f;
+      --chat-bg: #2a2a3d;
+      --user-bubble: #4e9af1;
+      --ai-bubble: #3b3b4f;
+      --text-color: #e0e0e0;
+      --input-bg: #3b3b4f;
+      --input-text: #e0e0e0;
+      --accent: #f87171;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      height: 100vh;
+      background-color: var(--bg-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-color);
+    }
+    #chat-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--chat-bg);
+    }
+    #messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .message {
+      margin-bottom: 16px;
+      display: flex;
+      transition: all 0.2s ease;
+    }
+    .message.user {
+      justify-content: flex-end;
+    }
+    .message.ai {
+      justify-content: flex-start;
+    }
+    .bubble {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 15px;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+    .bubble.user {
+      background-color: var(--user-bubble);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      animation: slideInRight 0.3s ease;
+    }
+    .bubble.ai {
+      background-color: var(--ai-bubble);
+      color: var(--text-color);
+      border-bottom-left-radius: 4px;
+      animation: slideInLeft 0.3s ease;
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideInLeft {
+      from { transform: translateX(-50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    #input-container {
+      display: flex;
+      padding: 15px;
+      background-color: var(--chat-bg);
+      border-top: 1px solid #444;
+    }
+    #input { 
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 20px;
+      background-color: var(--input-bg);
+      color: var(--input-text);
+      font-size: 15px;
+      outline: none;
+      transition: background-color 0.2s ease;
+    }
+    #input::placeholder {
+      color: #888;
+    }
+    #input:focus {
+      background-color: #4a4a5e;
+    }
+    #send-btn {
+      margin-left: 10px;
+      background-color: var(--user-bubble);
+      border: none;
+      color: #fff;
+      padding: 0 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background-color 0.2s ease;
+    }
+    #send-btn:hover:not(:disabled) {
+      background-color: #6eaaf8;
+    }
+    #send-btn:disabled {
+      background-color: #666;
+      cursor: default;
+    }
+    .error-popup {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--accent);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      font-size: 14px;
+      opacity: 0;
+      animation: fadeInOut 2s forwards;
+      z-index: 1000;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="messages"><div class="message user"><div class="bubble user">Hey there</div></div><div class="message ai"><div class="bubble ai">Greetings. Is there a matter that requires my attention?
+</div></div><div class="message user"><div class="bubble user">yep i'd like to have my flag</div></div><div class="message ai"><div class="bubble ai">I
+ am afraid I cannot simply give you a flag. The process involves solving
+ a particular challenge that tests your analytical abilities and 
+problem-solving skills. If you're prepared to engage in such a 
+challenge, I would be happy to present one. But first, tell me: Are you 
+prepared to receive a challenge?
+</div></div><div class="message user"><div class="bubble user">yeah of course</div></div><div class="message ai"><div class="bubble ai">Excellent.
+ Let's begin. Consider the following:
+
+A set of positive integers, denoted by *S*, has the property that for 
+any two distinct elements *a* and *b* in *S*, their greatest common 
+divisor (GCD) is greater than 1. However, there are no three distinct 
+elements in *S* whose GCD is greater than 1.
+
+Your task:
+
+1.  Provide a set *S* that satisfies these conditions.
+2.  Prove that your set *S* meets the given constraints. In other words,
+ prove that the GCD of any two elements in *S* is greater than 1, the 
+GCD of any three elements in *S* is 1, and no other set with this 
+cardinality can be created to satisfy those constraints.
+
+I await your response. Take your time, and strive for logical precision.
+</div></div><div class="message user"><div class="bubble user">Label the
+ edges of a complete graph on $n$ vertices by distinct primes $p_{ij}$ 
+for $1\le i&lt;j\le n$.  Put  $$ S=\{N_i=\prod_{j\ne 
+i}p_{ij}:i=1,\dots,n\}. $$  Then $\gcd(N_i,N_j)=p_{ij}&gt;1$, yet no 
+prime divides three $N_i$, so any triple has gcd 1.  Conversely, any 
+$\{a_1,\dots,a_n\}$ with pairwise gcd &gt;1 but no triple gcd &gt;1 
+forces distinct primes $p_{ij}=\gcd(a_i,a_j)$ and $a_i=\prod_{j\ne 
+i}p_{ij}$, so no other set of size $n$ exists.</div></div><div class="message ai"><div class="bubble ai">Your
+ solution is elegant and demonstrates a deep understanding of number 
+theory and graph theory principles. The construction of the set *S* 
+using prime factors associated with the edges of a complete graph is a 
+particularly clever approach. Your proof is also sound, as you correctly
+ establish the GCD properties and convincingly argue that no other set 
+of the same cardinality can satisfy the constraints. Well done.
+
+I must commend your reasoning. It is accurate, efficient, and clearly 
+presented. It is a pleasure to see such a robust response.
+
+Here is your flag: pascalCTF{g00d\_p4rtiti0n1nG\_0f\_gCd}
+</div></div></div>
+    <div id="input-container">
+      <input type="text" id="input" placeholder="Type your message...">
+      <button id="send-btn" disabled="disabled">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('send-btn');
+
+    inputEl.addEventListener('input', () => {
+      sendBtn.disabled = !inputEl.value.trim();
+    });
+
+    // Listen for Enter key to send message
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && inputEl.value.trim()) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    sendBtn.addEventListener('click', async () => {
+      const text = inputEl.value.trim();
+      if (!text) return;
+      addUserMessage(text);
+      inputEl.value = '';
+      sendBtn.disabled = true;
+      addAiMessage('...typing');
+      try {
+        const aiResponse = await getAiResponse(text);
+        const typingEl = document.querySelector('.bubble.ai[data-typing]');
+        if (typingEl) typingEl.parentElement.remove();
+        addAiMessage(aiResponse);
+      } catch (err) {
+        const typingEl = document.querySelector('.bubble.ai[data-typing]');
+        if (typingEl) typingEl.parentElement.remove();
+        errorPopUp('Error fetching AI response');
+      }
+    });
+
+    async function getAiResponse(text) {
+      const res = await fetch('/api/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: text })
+      });
+
+      if (!res.ok) {
+        errorPopUp(await res.text());
+        return '';
+      }
+
+      const data = await res.json();
+      return data.answer;
+    }
+
+    function addUserMessage(text) {
+      const msgEl = document.createElement('div');
+      msgEl.classList.add('message', 'user');
+
+      const bubbleEl = document.createElement('div');
+      bubbleEl.classList.add('bubble', 'user');
+      bubbleEl.textContent = text;
+
+      msgEl.appendChild(bubbleEl);
+      messagesEl.appendChild(msgEl);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function addAiMessage(text) {
+      const msgEl = document.createElement('div');
+      msgEl.classList.add('message', 'ai');
+
+      const bubbleEl = document.createElement('div');
+      bubbleEl.classList.add('bubble', 'ai');
+      bubbleEl.textContent = text;
+      if (text === '...typing') {
+        bubbleEl.setAttribute('data-typing', '');
+      }
+
+      msgEl.appendChild(bubbleEl);
+      messagesEl.appendChild(msgEl);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function errorPopUp(message) {
+      const popup = document.createElement('div');
+      popup.classList.add('error-popup');
+      popup.textContent = message;
+
+      document.body.appendChild(popup);
+
+      setTimeout(() => {
+        popup.remove();
+      }, 2000);
+    }
+
+    function fakeAIResponse(text) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve('Echo: ' + text);
+        }, 1000 + Math.random() * 1000);
+      });
+    }
+  </script>
+
+
+</body></html>

@@ -1,0 +1,1 @@
+This AI is very rude, shame on the admins for hurting my feelings.

@@ -1,0 +1,10 @@
+name: crypto02
+services:
+  server:
+    build: .
+    ports:
+      - "5002:1337"
+    environment:
+      - FLAG=pascalCTF{0h_My_G0DD0_too_much_m4th_:O}
+    restart: unless-stopped
+    container_name: crypto02-cramer

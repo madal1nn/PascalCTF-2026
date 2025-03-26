@@ -1,0 +1,10 @@
+name: web02
+services:
+  zazastore:
+    build: .
+    ports:
+      - "127.0.0.1:8002:3000"
+    container_name: web02-zazastore
+    restart: unless-stopped
+    environment:
+      - FLAG=pascalCTF{w3_l1v3_f0r_th3_z4z4}

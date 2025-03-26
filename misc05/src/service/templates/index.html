@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>User Provisioning</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  {% if turnstile_site_key %}
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  {% endif %}
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>User Provisioning</h1>
+        <p>Create a random mailbox user for domain <strong id="domain">{{ domain or 'unknown' }}</strong>.</p>
+      </header>
+
+      <section class="card">
+  {% if turnstile_site_key %}
+  <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-callback="onCaptcha"></div>
+  {% endif %}
+  <button id="createBtn" class="btn">Create user</button>
+        <div id="result" class="hidden">
+          <div class="field"><label>Username</label>
+            <div class="value-row">
+              <code id="username"></code>
+              <button class="copy" data-target="username">Copy</button>
+            </div>
+          </div>
+          <div class="field"><label>Password</label>
+            <div class="value-row">
+              <code id="password"></code>
+              <button class="copy" data-target="password">Copy</button>
+            </div>
+          </div>
+          <div class="hint">Use these credentials to log in via IMAP/SMTP. Keep them safe.</div>
+        </div>
+        <div id="error" class="error hidden"></div>
+      </section>
+
+      <footer>
+        <a href="/healthz" target="_blank">Health</a>
+      </footer>
+    </main>
+
+    <script>
+      const createBtn = document.getElementById('createBtn');
+      const result = document.getElementById('result');
+      const errorBox = document.getElementById('error');
+      const usernameEl = document.getElementById('username');
+      const passwordEl = document.getElementById('password');
+
+  let turnstileToken = null;
+  function onCaptcha(token) { turnstileToken = token; }
+  window.onCaptcha = onCaptcha;
+
+      async function createUser() {
+        errorBox.classList.add('hidden');
+        errorBox.textContent = '';
+        result.classList.add('hidden');
+        createBtn.disabled = true;
+        createBtn.textContent = 'Creating...';
+        try {
+          const payload = {};
+          if (typeof turnstile !== 'undefined') {
+            if (!turnstileToken) {
+              throw new Error('Please complete the captcha');
+            }
+            payload.turnstileToken = turnstileToken;
+          }
+          const res = await fetch('/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error || 'Unknown error');
+          }
+          usernameEl.textContent = `${data.username}@${data.domain}`;
+          passwordEl.textContent = data.password;
+          result.classList.remove('hidden');
+          if (typeof turnstile !== 'undefined') { turnstileToken = null; }
+        } catch (e) {
+          errorBox.textContent = e.message;
+          errorBox.classList.remove('hidden');
+          if (typeof turnstile !== 'undefined') { turnstileToken = null; }
+        } finally {
+          createBtn.disabled = false;
+          createBtn.textContent = 'Create user';
+        }
+      }
+
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('button.copy');
+        if (!btn) return;
+        const targetId = btn.getAttribute('data-target');
+        const val = document.getElementById(targetId)?.textContent || '';
+        navigator.clipboard.writeText(val).then(() => {
+          btn.textContent = 'Copied';
+          setTimeout(() => (btn.textContent = 'Copy'), 1000);
+        });
+      });
+
+      createBtn.addEventListener('click', createUser);
+    </script>
+  </body>
+  </html>

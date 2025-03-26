@@ -1,0 +1,1 @@
+You can find the dump of the chat in this directory.

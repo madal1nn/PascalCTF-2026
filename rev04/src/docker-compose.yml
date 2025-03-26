@@ -1,0 +1,16 @@
+name: rev04
+services:
+  albo:
+    image: cybersecnatlab/challenge-jail:ubuntu-noble@sha256:bdb4f33f2c4604c8818b86fc7d52ce50c047a9556b43a8005c3d61ca1622dd43
+    restart: unless-stopped
+    init: true
+    privileged: true
+    container_name: rev04-albo
+    ports:
+      - '7004:1337'
+    volumes:
+      - './bin/albo:/home/user/chall:ro'
+    environment:
+      - 'FLAG=pascalCTF{g00d_luck_g3tt1ng_your_pr1zes_n0w}'
+      - 'LOG_STDERR=true'
+      - 'TIMEOUT=60'

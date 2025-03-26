@@ -1,0 +1,13 @@
+{
+  "name": "pascalctf-quiz",
+  "version": "1.0.0",
+  "description": "Interactive Quiz with secure server-side question handling",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimal AI Chat</title>
+  <style>
+    :root {
+      --bg-color: #1e1e2f;
+      --chat-bg: #2a2a3d;
+      --user-bubble: #4e9af1;
+      --ai-bubble: #3b3b4f;
+      --text-color: #e0e0e0;
+      --input-bg: #3b3b4f;
+      --input-text: #e0e0e0;
+      --accent: #f87171;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      height: 100vh;
+      background-color: var(--bg-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-color);
+    }
+    #chat-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--chat-bg);
+    }
+    .guessImage {
+      display: block;
+      max-width: 100%;
+      max-height: 400px;
+      width: auto;
+      height: auto;
+      border-radius: 12px;
+      margin: 0 auto;
+    }
+
+    #messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .message {
+      margin-bottom: 16px;
+      display: flex;
+      transition: all 0.2s ease;
+    }
+    .message.user {
+      justify-content: flex-end;
+    }
+    .message.ai {
+      justify-content: flex-start;
+    }
+    .bubble {
+      max-width: 70%;
+      padding: 12px 16px;
+      border-radius: 20px;
+      font-size: 15px;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+    .bubble.user {
+      background-color: var(--user-bubble);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      animation: slideInRight 0.3s ease;
+    }
+    .bubble.ai {
+      background-color: var(--ai-bubble);
+      color: var(--text-color);
+      border-bottom-left-radius: 4px;
+      animation: slideInLeft 0.3s ease;
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideInLeft {
+      from { transform: translateX(-50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    #input-container {
+      display: flex;
+      padding: 15px;
+      background-color: var(--chat-bg);
+      border-top: 1px solid #444;
+    }
+    #input { 
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 20px;
+      background-color: var(--input-bg);
+      color: var(--input-text);
+      font-size: 15px;
+      outline: none;
+      transition: background-color 0.2s ease;
+    }
+    #input::placeholder {
+      color: #888;
+    }
+    #input:focus {
+      background-color: #4a4a5e;
+    }
+    #send-btn {
+      margin-left: 10px;
+      background-color: var(--user-bubble);
+      border: none;
+      color: #fff;
+      padding: 0 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background-color 0.2s ease;
+    }
+    #send-btn:hover:not(:disabled) {
+      background-color: #6eaaf8;
+    }
+    #send-btn:disabled {
+      background-color: #666;
+      cursor: default;
+    }
+    .error-popup {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--accent);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      font-size: 14px;
+      opacity: 0;
+      animation: fadeInOut 2s forwards;
+      z-index: 1000;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="messages">
+      <% for (const msg of messages) { %>
+        <div class="message <%= msg.is_user ? 'user' : 'ai' %>">
+          <div class="bubble <%= msg.is_user ? 'user' : 'ai' %>"><%= msg.text %></div>
+        </div>
+      <% } %>
+    </div>
+    <div id="input-container">
+      <input type="text" id="input" placeholder="Type your message..." />
+      <button id="send-btn" disabled>Send</button>
+    </div>
+  </div>
+
+  <script>
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('send-btn');
+    let guessed
+    inputEl.addEventListener('input', () => {
+      sendBtn.disabled = !inputEl.value.trim();
+    });
+
+    // Listen for Enter key to send message
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && inputEl.value.trim()) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    sendBtn.addEventListener('click', async () => {
+      const text = inputEl.value.trim();
+      if (!text) return;
+      addUserMessage(text);
+      inputEl.value = '';
+      sendBtn.disabled = true;
+      addAiMessage('...typing');
+      try {
+        const aiResponse = await getAiResponse(text);
+        const typingEl = document.querySelector('.bubble.ai[data-typing]');
+        if (typingEl) typingEl.parentElement.remove();
+        addAiMessage(aiResponse);
+      } catch (err) {
+        const typingEl = document.querySelector('.bubble.ai[data-typing]');
+        if (typingEl) typingEl.parentElement.remove();
+        errorPopUp('Error fetching AI response');
+      }
+    });
+
+    async function getAiResponse(text) {
+      
+      if(guessed == true || guessed == null){
+        guessed = false
+        getImage()
+      }
+      const res = await fetch('/api/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: text })
+      });
+
+      if (!res.ok) {
+        errorPopUp(await res.text());
+        return '';
+      }
+
+      const data = await res.json();
+      if(data.guessed == true) guessed = true
+      return data.answer;
+    }
+
+    function addUserMessage(text) {
+      const msgEl = document.createElement('div');
+      msgEl.classList.add('message', 'user');
+
+      const bubbleEl = document.createElement('div');
+      bubbleEl.classList.add('bubble', 'user');
+      bubbleEl.textContent = text;
+
+      msgEl.appendChild(bubbleEl);
+      messagesEl.appendChild(msgEl);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function addAiMessage(text) {
+      const msgEl = document.createElement('div');
+      msgEl.classList.add('message', 'ai');
+
+      const bubbleEl = document.createElement('div');
+      bubbleEl.classList.add('bubble', 'ai');
+      bubbleEl.textContent = text;
+      if (text === '...typing') {
+        bubbleEl.setAttribute('data-typing', '');
+      }
+
+      msgEl.appendChild(bubbleEl);
+      messagesEl.appendChild(msgEl);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function errorPopUp(message) {
+      const popup = document.createElement('div');
+      popup.classList.add('error-popup');
+      popup.textContent = message;
+
+      document.body.appendChild(popup);
+
+      setTimeout(() => {
+        popup.remove();
+      }, 2000);
+    }
+
+    function fakeAIResponse(text) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve('Echo: ' + text);
+        }, 1000 + Math.random() * 1000);
+      });
+    }
+
+   function addImageMess(data) {
+      const msgEl = document.createElement('div');
+      msgEl.classList.add('message', 'ai');
+
+      const bubbleEl = document.createElement('div');
+      bubbleEl.classList.add('bubble', 'ai');
+
+      const imgEl = document.createElement('img');
+      imgEl.classList.add('guessImage');
+      imgEl.src = data;
+
+      bubbleEl.appendChild(imgEl);
+      msgEl.appendChild(bubbleEl);
+      messagesEl.appendChild(msgEl);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function getImage() {
+      fetch('/getImage')
+        .then(response => response.json())
+        .then(data => {
+          let imgData = data.data;
+          addImageMess(imgData)
+        })
+        .catch(err => {
+          console.error('Error fetching image:', err);
+        });
+    }
+
+  </script>
+</body>
+</html>

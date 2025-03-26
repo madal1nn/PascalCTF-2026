@@ -1,0 +1,14 @@
+name: rev05
+services:
+  misterious-game:
+    build: .
+    ports:
+      - "${IPV6}:7005:1337"
+    environment:
+      - FLAG=pascalCTF{1_gu3ss_y0ure_th3_4ctu4l_mr_n3tw0rk_4dm1n}
+    container_name: rev05-misterious-game
+    restart: unless-stopped
+
+networks:
+  default:
+    enable_ipv6: true

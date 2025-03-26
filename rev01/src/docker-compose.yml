@@ -1,0 +1,10 @@
+name: rev01
+services:
+  auratester:
+    build: .
+    ports:
+      - "7001:1337"
+    environment:
+      - FLAG=pascalCTF{Y0u_4r3_th3_r34l_4ur4_f1n4l_b0s5}
+    container_name: rev01-auratester
+    restart: unless-stopped

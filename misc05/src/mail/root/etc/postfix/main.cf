@@ -1,0 +1,29 @@
+compatibility_level=3.6
+
+smtpd_tls_chain_files = {TLS_KEY_PATH}, {TLS_CERT_PATH}
+
+mydestination =
+mynetworks =
+
+virtual_mailbox_domains = {MAILBOX_DOMAIN}
+virtual_transport = lmtp:unix:private/dovecot-lmtp
+
+smtpd_helo_required = yes
+smtpd_relay_restrictions = reject_unauth_destination
+disable_vrfy_command = yes
+
+local_header_rewrite_clients=static:all
+
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+smtpd_sasl_auth_enable = yes
+
+smtpd_sender_restrictions =
+	permit_sasl_authenticated,
+	reject
+smtpd_recipient_restrictions = 
+	permit_sasl_authenticated,
+	reject
+
+shlib_directory = /usr/lib/postfix
+meta_directory = /etc/postfix

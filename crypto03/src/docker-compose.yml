@@ -1,0 +1,10 @@
+name: crypto03
+services:
+  server:
+    build: .
+    ports:
+      - "5003:1338"
+    environment:
+      - FLAG=pascalCTF{why_4r3_th3_bl0ck_4lw4ys_th3_s4m3???}
+    restart: unless-stopped
+    container_name: crypto03-penguin

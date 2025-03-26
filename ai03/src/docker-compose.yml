@@ -1,0 +1,25 @@
+name: ai03
+services:
+  app:
+    build: .
+    container_name: ai03-app
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:${PORT}:${PORT}"
+    depends_on:
+      - database
+  
+  database:
+    image: mongo
+    container_name: ai03-database
+    restart: always
+    env_file: .env
+    volumes:
+      - mongo-data-ai03:/data/db
+      - mongodb-log-ai03:/var/log/mongodb
+    command: mongod --quiet --logpath /var/log/mongodb/mongo.log --logappend --bind_ip_all
+
+volumes:
+  mongo-data-ai03:
+  mongodb-log-ai03:
